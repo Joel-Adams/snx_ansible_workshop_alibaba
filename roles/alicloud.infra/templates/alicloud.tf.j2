@@ -21,7 +21,7 @@ data "template_file" "ecs_user_script" {
   template = "${file("${path.module}/ecs_user_script.tpl")}"
 
   vars {
-    ecs_keypair = "${var.keypair}"
+    ecs_keypair = "${file("~/.ssh/ansible/id_rsa.pub")}"
   }
 }
 
@@ -189,6 +189,7 @@ resource "alicloud_instance" "node" {
     instance_name        = "node-${count.index}"
     vswitch_id        = "${alicloud_vswitch.vsw.id}"
     security_groups   = [ "${alicloud_security_group.ansible-tower-sg.id}" ]
+    user_data         = "${data.template_file.ecs_user_script.rendered}"
 #    user_data         = "${file("{{ lookup('env','PWD') }}/roles/alicloud.infra/templates/ecs_user_script.sh")}"
     password	      = "RedHat2017"
 

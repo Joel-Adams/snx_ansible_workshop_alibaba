@@ -53,7 +53,7 @@
     path: "{{ terraform_working_dir }}/{{ workshop_prefix }}-tower"
 
 - name: Create ssh keypair
-  copy: src=~/.ssh/ansible/id_rsa.pub
+  copy: src=~/.ssh/ansible/id_rsa
         dest="{{ terraform_working_dir }}/{{ workshop_prefix }}-tower"
         mode=0400
   tags:
