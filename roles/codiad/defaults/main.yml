@@ -4,8 +4,8 @@
 # edit these
 codiad_dir: "/usr/share/nginx/codiad"
 codiad_port: "8443"
-codiad_ssl_cert_src_file: "/home/ec2-user/.ssh/cert.pem"
-codiad_ssl_key_src_file: "/home/ec2-user/.ssh/privkey.pem"
+codiad_ssl_cert_src_file: "/home/ecs-user/.ssh/cert.pem"
+codiad_ssl_key_src_file: "/home/ecs-user/.ssh/privkey.pem"
 # http://php.net/manual/en/timezones.others.php
 #codiad_timezone: "Etc/UTC"
 codiad_timezone: "US/Eastern"
@@ -15,7 +15,7 @@ codiad_timezone: "US/Eastern"
 # Here is the list of users.  Use the following algorithm to hash passwords:
 # $ php -r 'print_r(sha(md5("password")));echo "\n";'
 #codiad_users:
-#- { name: "ec2-user", pass: "0a161200ebeadfd24001682f05f16359b74bb55f" }
+#- { name: "ecs-user", pass: "0a161200ebeadfd24001682f05f16359b74bb55f" }
 codiad_version: "HEAD"
 
 # leave these alone
