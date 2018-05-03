@@ -1,0 +1,12 @@
+# file: 1_provision.yml
+---
+# https://www.terraform.io/docs/providers/alicloud/index.html
+
+
+- name: Provision Alicloud Infrastucture using Terraform
+  hosts: local_target
+  roles:
+  - { role: alicloud.infra, tags: ["tf_create"] }
+
+# Username: ecs-user
+# Password: redhat!@#

@@ -1,0 +1,15 @@
+ansible_ssh_user=ecs-user
+ansible_become=yes
+
+[local_target]
+localhost  ansible_connection=local  ansible_python_interpreter='/usr/bin/env python'
+
+[tower_nodes]
+jsa.tower.[0:1].jadams.xyz
+
+[nodes]
+jsa.node.[0:1].jadams.xyz
+
+[all_nodes]
+jsa.tower.[0:1].jadams.xyz
+jsa.node.[0:1].jadams.xyz

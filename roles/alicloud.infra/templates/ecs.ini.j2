@@ -1,0 +1,12 @@
+# Ansible Alicloud external inventory script settings
+#
+
+[Alicloud]
+
+# to talk to a private eucalyptus instance uncomment these lines
+# and edit edit eucalyptus_host to be the host name of your cloud controller
+#eucalyptus = True
+#eucalyptus_host = clc.cloud.domain.org
+
+# Alicloud regions to make calls to. Set this to 'all' to make request to all regions
+regions = {{ region }}# Ansible Alicloud external inventory script settings

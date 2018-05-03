@@ -1,0 +1,77 @@
+# file: roles/destroy/tasks/main.yml
+---
+
+#---------------------------------------------------
+# Terraform.io
+#---------------------------------------------------
+- name: Check Terraform version
+  shell: terraform version
+  register: tf
+  changed_when: false
+
+- set_fact:
+    tf_version: "{{ tf.stdout_lines[0] | regex_replace('^Terraform.*v') }}"
+#---------------------------------------------------
+# Terraform.io Delete
+#---------------------------------------------------
+- name: Run Terraform ( < 0.11.0 ) Infra Delete
+  command: terraform destroy
+  args:
+    chdir: "{{ terraform_working_dir }}"
+  when: tf_version | version_compare('0.11.0', '<')
+
+- name: Run Terraform ( >= 0.11.0 ) Infra Delete
+  command: terraform destroy -auto-approve
+  args:
+    chdir: "{{ terraform_working_dir }}"
+  when: tf_version | version_compare('0.11.0', '>=')
+#---------------------------------------------------
+# Terraform.io DNS Delete
+#---------------------------------------------------
+- name: Run Terraform ( < 0.11.0 ) DNS Delete
+  command: terraform destroy
+  args:
+    chdir: "{{ terraform_working_dir }}/dns_record"
+  when: tf_version | version_compare('0.11.0', '<')
+
+- name: Run Terraform ( >= 0.11.0 ) DNS Delete
+  command: terraform destroy -auto-approve
+  args:
+    chdir: "{{ terraform_working_dir }}/dns_record"
+  when: tf_version | version_compare('0.11.0', '>=')
+#---------------------------------------------------
+# Terraform.io EIP Delete
+#---------------------------------------------------
+- name: Run Terraform ( < 0.11.0 ) EIP Delete
+  command: terraform destroy
+  args:
+    chdir: "{{ terraform_working_dir }}/eip_address"
+  when: tf_version | version_compare('0.11.0', '<')
+
+- name: Run Terraform ( >= 0.11.0 ) EIP Delete
+  command: terraform destroy -auto-approve
+  args:
+    chdir: "{{ terraform_working_dir }}/eip_address"
+  when: tf_version | version_compare('0.11.0', '>=')
+#---------------------------------------------------
+# Remove Excess Files
+#---------------------------------------------------
+- name: ensure excess files are removed
+  file:
+    path: "{{ terraform_working_dir }}/{{ item }}"
+    state: absent
+  with_items:
+    - node_idline.txt
+    - node_ipaddressline.txt
+    - node_ipidline.txt
+    - tower_idline.txt
+    - tower_ipaddressline.txt
+    - tower_ipidline.txt
+    - dns_record
+    - eip_address
+    - dns_record2.sh
+    - dns_record.sh
+    - eip_association2.sh
+    - eip_association.sh
+    - env.sh
+    - ecs_user_script.sh

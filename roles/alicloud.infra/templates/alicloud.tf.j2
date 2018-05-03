@@ -1,0 +1,250 @@
+#----------------------------------------------
+# Variables
+#----------------------------------------------
+variable "alicloud_access_key" {}
+variable "alicloud_secret_key" {}
+variable "security_group" { default = "{{ workshop_prefix }}-ansible-tower-sg" }
+variable "tower_instance_type" { default = "{{ tower_instance_type }}" }
+variable "node_instance_type" { default = "{{ node_instance_type }}" }
+variable "alicloud_region" { default = "{{ region }}" }
+variable "alicloud_image" { default = "{{ image_id }}" }
+variable "number_tower_nodes" { default = "{{ number_tower_nodes }}" }
+variable "number_nodes" { default = "{{ number_nodes }}" }
+variable "alicloud_availability_zone" { default = "{{ availability_zone }}" }
+variable "keypair" { default = "{{ workshop_prefix }}-tower"}
+
+#----------------------------------------------
+#Data file
+#----------------------------------------------
+data "template_file" "ecs_user_script" {
+
+  template = "${file("${path.module}/ecs_user_script.tpl")}"
+
+  vars {
+    ecs_keypair = "${var.keypair}"
+  }
+}
+
+#----------------------------------------------
+# API Keys
+#----------------------------------------------
+provider "alicloud" {
+    access_key = "${var.alicloud_access_key}"
+    secret_key = "${var.alicloud_secret_key}"
+    region     = "${var.alicloud_region}"
+}
+
+#----------------------------------------------
+# SSH Key Creation
+#----------------------------------------------
+#resource "alicloud_key_pair" "publickey" {
+#    key_name = "my_public_key"
+#    public_key = "${file("~/.ssh/ansible/id_rsa.pub")}"
+#}
+
+#----------------------------------------------
+# VPC
+#----------------------------------------------
+# Main VPC that will contain everything.
+resource "alicloud_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  name = "{{ workshop_prefix }}-ansible-tower-vpc"
+}
+
+resource "alicloud_vswitch" "vsw" {
+  vpc_id            = "${alicloud_vpc.main.id}"
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "${var.alicloud_availability_zone}"
+}
+
+#----------------------------------------------
+# Security Group
+#----------------------------------------------
+resource "alicloud_security_group" "ansible-tower-sg" {
+  name   = "{{ workshop_prefix }}-ansible-tower-sg"
+  vpc_id = "${alicloud_vpc.main.id}"
+}
+
+resource "alicloud_security_group_rule" "allow_https" {
+  type              = "ingress"
+  ip_protocol       = "tcp"
+  policy            = "accept"
+  port_range        = "443/443"
+  priority          = 1
+  security_group_id = "${alicloud_security_group.ansible-tower-sg.id}"
+  cidr_ip           = "0.0.0.0/0"
+}
+
+resource "alicloud_security_group_rule" "allow_egress" {
+  type              = "egress"
+  ip_protocol       = "tcp"
+  policy            = "accept"
+  port_range        = "1/65535"
+  priority          = 2
+  security_group_id = "${alicloud_security_group.ansible-tower-sg.id}"
+  cidr_ip           = "0.0.0.0/0"
+}
+
+resource "alicloud_security_group_rule" "allow_http" {
+  type              = "ingress"
+  ip_protocol       = "tcp"
+  policy            = "accept"
+  port_range        = "80/80"
+  priority          = 3
+  security_group_id = "${alicloud_security_group.ansible-tower-sg.id}"
+  cidr_ip           = "0.0.0.0/0"
+}
+
+resource "alicloud_security_group_rule" "allow_8443" {
+  type              = "ingress"
+  ip_protocol       = "tcp"
+  policy            = "accept"
+  port_range        = "8443/8443"
+  priority          = 4
+  security_group_id = "${alicloud_security_group.ansible-tower-sg.id}"
+  cidr_ip           = "0.0.0.0/0"
+}
+
+resource "alicloud_security_group_rule" "allow_ssh" {
+  type              = "ingress"
+  ip_protocol       = "tcp"
+  policy            = "accept"
+  port_range        = "22/22"
+  priority          = 5
+  security_group_id = "${alicloud_security_group.ansible-tower-sg.id}"
+  cidr_ip           = "0.0.0.0/0"
+}
+
+resource "alicloud_security_group_rule" "allow_5000" {
+  type              = "ingress"
+  ip_protocol       = "tcp"
+  policy            = "accept"
+  port_range        = "5000/5000"
+  priority          = 6
+  security_group_id = "${alicloud_security_group.ansible-tower-sg.id}"
+  cidr_ip           = "0.0.0.0/0"
+}
+
+resource "alicloud_security_group_rule" "allow_8080" {
+  type              = "ingress"
+  ip_protocol       = "tcp"
+  policy            = "accept"
+  port_range        = "8080/8080"
+  priority          = 7
+  security_group_id = "${alicloud_security_group.ansible-tower-sg.id}"
+  cidr_ip           = "0.0.0.0/0"
+}
+
+resource "alicloud_security_group_rule" "allow_8888" {
+  type              = "ingress"
+  ip_protocol       = "tcp"
+  policy            = "accept"
+  port_range        = "8888/8888"
+  priority          = 8
+  security_group_id = "${alicloud_security_group.ansible-tower-sg.id}"
+  cidr_ip           = "0.0.0.0/0"
+}
+
+#----------------------------------------------
+# Image : Tower Node
+#----------------------------------------------
+
+resource "alicloud_instance" "tower-node" {
+    count             = "${var.number_tower_nodes}"
+    availability_zone = "${var.alicloud_availability_zone}"
+    instance_type     = "${var.tower_instance_type}"
+    system_disk_category = "cloud_efficiency"
+    image_id             = "${var.alicloud_image}"
+    instance_name        = "tower-node-${count.index}"
+    vswitch_id        = "${alicloud_vswitch.vsw.id}"
+    security_groups   = [ "${alicloud_security_group.ansible-tower-sg.id}" ]
+    user_data         = "${data.template_file.ecs_user_script.rendered}"
+#    user_data         = "${file("{{ lookup('env','PWD') }}/roles/alicloud.infra/templates/ecs_user_script.sh")}"
+    password	      = "RedHat2017"
+
+  tags {
+    Name     = "{{ workshop_prefix }}-tower-${count.index}"
+    Role     = "{{ workshop_prefix }}-tower"
+    Workshop = "{{ workshop_prefix }}"
+    sshUser  = "ecs-user"
+    Index    = "${count.index}"
+
+    }
+}
+
+#resource "alicloud_key_pair_attachment" "tower-attach" {
+#  key_name = "${alicloud_key_pair.publickey.id}"
+#  instance_ids = ["${alicloud_instance.tower-node.*.id}"]
+#}
+
+#----------------------------------------------
+# AMI : Generic Node
+#----------------------------------------------
+resource "alicloud_instance" "node" {
+    count             = "${var.number_nodes}"
+    availability_zone = "${var.alicloud_availability_zone}"
+    instance_type     = "${var.node_instance_type}"
+    system_disk_category = "cloud_efficiency"
+    image_id             = "${var.alicloud_image}"
+    instance_name        = "node-${count.index}"
+    vswitch_id        = "${alicloud_vswitch.vsw.id}"
+    security_groups   = [ "${alicloud_security_group.ansible-tower-sg.id}" ]
+#    user_data         = "${file("{{ lookup('env','PWD') }}/roles/alicloud.infra/templates/ecs_user_script.sh")}"
+    password	      = "RedHat2017"
+
+  tags {
+    Name     = "{{ workshop_prefix }}-node-${count.index}"
+    Role     = "{{ workshop_prefix }}-node"
+    Workshop = "{{ workshop_prefix }}"
+    sshUser  = "ecs-user"
+    Index    = "${count.index}"
+
+    }
+}
+
+#resource "alicloud_key_pair_attachment" "node-attach" {
+#  key_name = "${alicloud_key_pair.publickey.id}"
+#  instance_ids = ["${alicloud_instance.node.*.id}"]
+#}
+
+#----------------------------------------------
+# EIP
+#----------------------------------------------
+
+resource "alicloud_eip" "tower-eip" {
+  count = "${var.number_tower_nodes}"
+}
+
+resource "alicloud_eip" "node-eip" {
+  count = "${var.number_nodes}"
+}
+
+resource "local_file" "Tower_IP_Address" {
+    content     = "${join(",", alicloud_eip.tower-eip.*.ip_address)}"
+    filename = "${path.module}/tower_ipaddress.txt"
+}
+
+resource "local_file" "Node_IP_Address" {
+    content     = "${join(",", alicloud_eip.node-eip.*.ip_address)}"
+    filename = "${path.module}/node_ipaddress.txt"
+}
+
+resource "local_file" "TOWER_IP_ID" {
+    content     = "${join(",", alicloud_eip.tower-eip.*.id)}"
+    filename = "${path.module}/tower_ipid.txt"
+}
+
+resource "local_file" "NODE_IP_ID" {
+    content     = "${join(",", alicloud_eip.node-eip.*.id)}"
+    filename = "${path.module}/node_ipid.txt"
+}
+
+resource "local_file" "TOWER_ID" {
+    content     = "${join(",", alicloud_instance.tower-node.*.id)}"
+    filename = "${path.module}/tower_id.txt"
+}
+
+resource "local_file" "NODE_ID" {
+    content     = "${join(",", alicloud_instance.node.*.id)}"
+    filename = "${path.module}/node_id.txt"
+}

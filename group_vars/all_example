@@ -1,0 +1,64 @@
+# file: group_vars
+#######################################################################################
+#
+#                  ////IMPORTANT////
+#
+#      Prefixed to all resources for cleanup & identifcation.
+#######################################################################################
+
+# Ensure that the name does not include special characters such as underscores, etc.
+workshop_prefix:                  "tower"
+
+
+
+#######################################################################################
+# ANSIBLE ROLE KEY         |      VALUE
+#######################################################################################
+# alicloud.infra                |      .terraform working dir 
+terraform_working_dir:            "{{ lookup('env','PWD') }}/.redhatgov"
+# alicloud.infra                |      ALI_CLOUD API KEYS
+alicloud_access_key:                   ""
+alicloud_secret_key:                   ""
+# alicloud.infra                |      ALI_CLOUD DNS
+domain_name:                      ""
+# alicloud.infra                |      ALI_CLOUD Terraform Vars
+number_tower_nodes:               "2"            # Tower Nodes
+number_nodes:                     "4"            # Student Nodes
+tower_instance_type:              "ecs.g5.large"    # Tower Instance Size
+node_instance_type:               "ecs.g5.large"     # Student Instance Size
+region:                           "us-east-1"    # ALI_CLOUD Region, configures ecs.ini too
+availability_zone:		  "us-east-1a"   # ALI_CLOUD Availability Zone
+#--------------------------------------------------------------------------------------
+# subscription_manager     |      Red Hat Subscription via Cloud Access
+cloud_access:                      true
+# subscription_manager     |      Red Hat Subscription via username & password
+username:                         ""
+password:                         ""
+pool_id:                          ""
+# subscription_manager     |      Red Hat Subscription via activation keys
+rhsm_activationkey:               ""
+rhsm_org_id:                      ""
+#--------------------------------------------------------------------------------------
+# LetsEncrypt              |      email
+letsencrypt_email:                "someone@redhat.com"
+letsencrypt:                      false
+#--------------------------------------------------------------------------------------
+# wetty                    |      password
+workshop_password:                "redhat!@#"
+#--------------------------------------------------------------------------------------
+
+#######################################################################################
+# ANSIBLE config           |      VALUE
+#######################################################################################
+# Dynamic Inventory 
+inventory_working_dir:            "{{ lookup('env','PWD') }}/inventory"
+# Ansible SSH Key Location |      SSH Key Vars
+ssh_key_path:                     "{{ terraform_working_dir }}/{{ workshop_prefix }}-tower"
+ansible_ssh_private_key_file:     "{{ terraform_working_dir }}/{{ workshop_prefix }}-tower"
+system_user:                      "ecs-user"    # ALI_CLOUD
+# Here is the list of users for codiad.  It is suggested to use the same password as you specified as the `workshop_password`, above.  Use the following algorithm to hash passwords:
+# $ php -r 'print_r(sha(md5("password")));echo "\n";'
+codiad_users:
+- { name: "ecs-user", pass: "0a161200ebeadfd24001682f05f16359b74bb55f" }
+# system_user:                     "vagrant"    # vagrant
+    

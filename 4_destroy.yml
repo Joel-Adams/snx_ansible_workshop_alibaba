@@ -1,0 +1,7 @@
+# file: 4_destroy.yml
+---
+
+- name: Remove Alicloud Infrastucture using Terraform
+  hosts: local_target
+  roles:
+  - { role: destroy }
