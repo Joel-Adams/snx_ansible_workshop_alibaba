@@ -1,4 +1,4 @@
-# file: roles/aws.terraform/vars/main.yml
+# file: roles/alicloud.terraform/vars/main.yml
 ---
 #####################################################
 # Domain Name you own
@@ -7,10 +7,10 @@
 # zone_id: ""
 
 #####################################################
-# AWS API Keys for terraform.tfvars file
+# alicloud API Keys for terraform.tfvars file
 #####################################################
-# aws_access_key: ""
-# aws_secret_key: ""
+# alicloud_access_key: ""
+# alicloud_secret_key: ""
 
 # region: "us-east-1"
 
