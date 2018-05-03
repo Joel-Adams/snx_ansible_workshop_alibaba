@@ -2,13 +2,13 @@
 
 ![ansible](img/Ansible-Tower-Logotype-Large-RGB-FullGrey-300x124.png)
 
-`Ansible_Tower_Workshop` is a ansible playbook to provision Ansible Tower in AWS. This playbook uses Ansible to wrap Terraform, for provisioning AWS infrastructure and nodes. To find more info about Terraform [check here](https://www.terraform.io/docs/providers/aws/index.html)
+`Ansible_Tower_Workshop` is a ansible playbook to provision Ansible Tower in Alibaba Cloud. This playbook uses Ansible to wrap Terraform, for provisioning Alibaba Cloud infrastructure and nodes. To find more info about Terraform [check here](https://www.terraform.io/docs/providers/alicloud/index.html)
 
-These modules all require that you have AWS API keys available to use to provision AWS resources. You also need to have IAM permissions set to allow you to create resources within AWS. There are several methods for setting up you AWS environment on you local machine.
+These modules all require that you have Alibaba Cloud API keys available to use to provision Alibaba Cloud resources. You also need to have access key permissions set to allow you to create resources within Alibaba Cloud. There are several methods for setting up you Alibaba Cloud environment on you local machine.
 
-Fill out `env.sh` & Export the AWS API Keys
+Fill out `env.sh` & Export the Alibaba Cloud API Keys
 
-First, copy env.sh_example to env.sh, and then fill in your API keys.  Once that is complete, source the script, to export your AWS environment variables.
+First, copy env.sh_example to env.sh, and then fill in your API keys.  Once that is complete, source the script, to export your Alibaba Cloud environment variables.
 
 ```
 source env.sh
@@ -16,14 +16,14 @@ source env.sh
 
 This repo also requires that you have Ansible installed on your local machine. For the most upto date methods of installing Ansible for your operating system [check here](http://docs.ansible.com/ansible/intro_installation.html).
 
-This repo also requires that Terraform be installed if you are using the aws.infra.terraform role. For the most upto data methods of installing Terraform for your operating system [check here](https://www.terraform.io/downloads.html).
+This repo also requires that Terraform be installed if you are using the alicloud.infra.terraform role. For the most upto data methods of installing Terraform for your operating system [check here](https://www.terraform.io/downloads.html).
 
 
 
-## AWS Infrastructure Roles
+## Alibaba Cloud Infrastructure Roles
 
 
-### roles/aws.infra.terraform
+### roles/alicloud.infra.terraform
 
 To create infrastructure and a Ansible Tower instance via Terraform:
 
@@ -56,21 +56,19 @@ wget https://releases.hashicorp.com/terraform/0.9.11/terraform_0.9.11_linux_amd6
 sudo unzip terraform_0.9.11_linux_amd64.zip -d /usr/local/bin terraform
 ```
 
-Then edit `group_vars/all` and fill in the vars with your AWS api info. This role can also provide easy domain name mapping to all the instances if you have a domain registered in AWS Route 53.  You can get the zone ID from the DNS domain stored in Route 53.
-
+Then edit `group_vars/all` and fill in the vars with your Alibaba Cloud api info. This role can also provide easy domain name mapping to all the instances if you have a domain registered in Alibaba Cloud.
 
 ```
 #####################################################
 # Domain Name you own
 #####################################################
 domain_name: ""
-zone_id: ""
 
 #####################################################
-# AWS API Keys for terraform.tfvars file
+# Alibaba Cloud API Keys for terraform.tfvars file
 #####################################################
-aws_access_key: ""
-aws_secret_key: ""
+alicloud_access_key:                   ""
+alicloud_secret_key:                   ""
 ```
 
 ```
@@ -82,8 +80,7 @@ To destroy
 
 ```
 ansible-playbook 3_unregister.yml # only need to run this if you aren't using Cloud Access
-cd .redhatgov
-terraform destroy
+ansible-playbook 4_destroy.yml
 ```
 
 ## Configure Workshop Nodes
@@ -91,14 +88,15 @@ terraform destroy
 To install and configure the necessary software, on the newly created nodes, run the second playbook.  It may be re-run as many times as necessary.
 
 ```
+ansible-playbook 2_load.yml -K
 ```
 
 ## Login to Ansible Tower
 
-Browse to the URL of the EC2 instance and enter the `ec2-user`'s password (workshop_password:) located in `group_vars/all`. 
+Browse to the URL of the ECS instance and enter the `ecs-user`'s password (workshop_password:) located in `group_vars/all`.
 
 ```
-https://{{ workshop_prefix }}.tower.0.{{ domain_name }}:8888/wetty/ssh/ec2-user
+https://{{ workshop_prefix }}.tower.0.{{ domain_name }}:8888/wetty/ssh/ecs-user
 ```
 
 ![Tower Login](img/ansible-tower.png)
@@ -111,5 +109,4 @@ There is a web-based IDE running on port 8443 of each tower node.  That IDE can 
 
 A walkthrough for most of the typewritten steps has been added to the workshop, both to speed up workshops presented within a limited schedule, or to help a studenmt who has made a mistake, or who has fallen far behind.
 
-The walkthrough is deployed on the tower nodes, in `~ec2-user/walkthrough`.
-
+The walkthrough is deployed on the tower nodes, in `~ecs-user/walkthrough`.
