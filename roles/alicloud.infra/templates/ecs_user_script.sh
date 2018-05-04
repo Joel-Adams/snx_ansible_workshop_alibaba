@@ -10,3 +10,4 @@ echo "${ecs_keypair}" > /home/ecs-user/.ssh/authorized_keys
 chown -R ecs-user.ecs-user /home/ecs-user/.ssh
 chmod -R 0700 /home/ecs-user/.ssh
 chmod 0600 /home/ecs-user/.ssh/authorized_keys
+grub2-mkconfig > /etc/grub2.cfg
