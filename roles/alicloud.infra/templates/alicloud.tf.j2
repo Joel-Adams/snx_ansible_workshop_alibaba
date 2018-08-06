@@ -160,6 +160,7 @@ resource "alicloud_instance" "tower-node" {
     security_groups   = [ "${alicloud_security_group.ansible-tower-sg.id}" ]
     user_data         = "${data.template_file.ecs_user_script.rendered}"
 #    user_data         = "${file("{{ lookup('env','PWD') }}/roles/alicloud.infra/templates/ecs_user_script.sh")}"
+    system_disk_size  = "60"
     password	      = "RedHat2017"
 
   tags {
@@ -190,6 +191,7 @@ resource "alicloud_instance" "node" {
     vswitch_id        = "${alicloud_vswitch.vsw.id}"
     security_groups   = [ "${alicloud_security_group.ansible-tower-sg.id}" ]
     user_data         = "${data.template_file.ecs_user_script.rendered}"
+    system_disk_size  = "60"
 #    user_data         = "${file("{{ lookup('env','PWD') }}/roles/alicloud.infra/templates/ecs_user_script.sh")}"
     password	      = "RedHat2017"
 
