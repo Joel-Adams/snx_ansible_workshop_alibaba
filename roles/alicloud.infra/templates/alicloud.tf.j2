@@ -1,8 +1,8 @@
 #----------------------------------------------
 # Variables
 #----------------------------------------------
-variable "alicloud_access_key" {}
-variable "alicloud_secret_key" {}
+variable "alicloud_access_key" { default = "{{ alicloud_access_key }}" }
+variable "alicloud_secret_key" { default = "{{ alicloud_secret_key }}" }
 variable "security_group" { default = "{{ workshop_prefix }}-ansible-tower-sg" }
 variable "tower_instance_type" { default = "{{ tower_instance_type }}" }
 variable "node_instance_type" { default = "{{ node_instance_type }}" }
