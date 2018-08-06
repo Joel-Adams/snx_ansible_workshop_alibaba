@@ -27,7 +27,8 @@ number_nodes:                     "4"            # Student Nodes
 tower_instance_type:              "ecs.g5.large"    # Tower Instance Size
 node_instance_type:               "ecs.g5.large"     # Student Instance Size
 region:                           "us-east-1"    # ALI_CLOUD Region, configures ecs.ini too
-availability_zone:		  "us-east-1a"   # ALI_CLOUD Availability Zone
+availability_zone:		          "us-east-1a"   # ALI_CLOUD Availability Zone
+image_id:                         "m-0xi12lcl3zjna9cvwa9z"  #ALI_CLOUD Image ID
 #--------------------------------------------------------------------------------------
 # subscription_manager     |      Red Hat Subscription via Cloud Access
 cloud_access:                      true
