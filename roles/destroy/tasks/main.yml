@@ -60,18 +60,3 @@
   file:
     path: "{{ terraform_working_dir }}/{{ item }}"
     state: absent
-  with_items:
-    - node_idline.txt
-    - node_ipaddressline.txt
-    - node_ipidline.txt
-    - tower_idline.txt
-    - tower_ipaddressline.txt
-    - tower_ipidline.txt
-    - dns_record
-    - eip_address
-    - dns_record2.sh
-    - dns_record.sh
-    - eip_association2.sh
-    - eip_association.sh
-    - env.sh
-    - ecs_user_script.sh
